@@ -18,7 +18,9 @@
   "dependencies": {
     "pinia": "^3.0.3",
     "vue": "^3.5.18",
-    "vue-router": "^4.5.1"
+    "vue-router": "^4.5.1",
+    "vxe-pc-ui": "^4.8.24",
+    "vxe-table": "^4.15.11"
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.2",
