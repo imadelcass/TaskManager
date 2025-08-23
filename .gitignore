@@ -1,0 +1,63 @@
+# =========================
+# Dotnet / Backend
+# =========================
+# Build outputs
+**/bin/
+**/obj/
+**/Debug/
+**/Release/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio / Rider
+.vs/
+.idea/
+
+# # NuGet packages
+# *.nupkg
+# *.snupkg
+# packages/
+# .nuget/
+
+# # EF Core Migrations temporary files
+**/Migrations/*.Designer.cs
+
+# # =========================
+# # Node / Frontend
+# # =========================
+# # Node modules
+# Logs
+logs
+*.log
+Frontend/npm-debug.log*
+Frontend/yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+Frontend/node_modules
+.DS_Store
+dist
+dist-ssr
+coverage
+*.local
+
+/cypress/videos/
+/cypress/screenshots/
+
+# Editor directories and files
+Frontend/.vscode/*
+Frontend/!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+*.tsbuildinfo
+Frontend/.env
