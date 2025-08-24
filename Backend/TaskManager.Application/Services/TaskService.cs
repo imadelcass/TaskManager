@@ -8,19 +8,18 @@ namespace TaskManager.Application.Services;
 public class TaskService : ITaskService
 {
     private readonly ITaskRepository _repository;
-    
+
     // Constructor Injection (like Laravel's dependency injection)
     public TaskService(ITaskRepository repository)
     {
         _repository = repository;
     }
-    
-    public async Task<IEnumerable<TaskResponseDto>> GetAllTasksAsync()
+
+    public async Task<PagedResult<TaskResponseDto>> GetAllAsync(int currentPage, int pageSize)
     {
-        var tasks = await _repository.GetAllAsync();
-        
-        // Convert entities to DTOs (like Laravel Resources)
-        return tasks.Select(task => new TaskResponseDto
+        var (tasks, totalCount) = await _repository.GetAllAsync(currentPage, pageSize);
+
+        var taskDtos = tasks.Select(task => new TaskResponseDto
         {
             Id = task.Id,
             Title = task.Title,
@@ -29,13 +28,22 @@ public class TaskService : ITaskService
             CreatedAt = task.CreatedAt,
             CompletedAt = task.CompletedAt
         });
+
+        return new PagedResult<TaskResponseDto>
+        {
+            Items = taskDtos,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize
+        };
     }
-    
+
+
     public async Task<TaskResponseDto?> GetTaskByIdAsync(int id)
     {
         var task = await _repository.GetByIdAsync(id);
         if (task == null) return null;
-        
+
         return new TaskResponseDto
         {
             Id = task.Id,
@@ -46,7 +54,7 @@ public class TaskService : ITaskService
             CompletedAt = task.CompletedAt
         };
     }
-    
+
     public async Task<TaskResponseDto> CreateTaskAsync(CreateTaskDto createTaskDto)
     {
         // Create domain entity from DTO
@@ -55,9 +63,9 @@ public class TaskService : ITaskService
             Title = createTaskDto.Title,
             Description = createTaskDto.Description
         };
-        
+
         var createdTask = await _repository.AddAsync(task);
-        
+
         return new TaskResponseDto
         {
             Id = createdTask.Id,
@@ -68,16 +76,16 @@ public class TaskService : ITaskService
             CompletedAt = createdTask.CompletedAt
         };
     }
-    
+
     public async Task<bool> UpdateTaskAsync(int id, UpdateTaskDto updateTaskDto)
     {
         var task = await _repository.GetByIdAsync(id);
         if (task == null) return false;
-        
+
         // Update the entity
         task.Title = updateTaskDto.Title;
         task.Description = updateTaskDto.Description;
-        
+
         // Handle status change using business methods
         if (updateTaskDto.IsCompleted && !task.IsCompleted)
         {
@@ -87,31 +95,31 @@ public class TaskService : ITaskService
         {
             task.MarkAsIncomplete();
         }
-        
+
         await _repository.UpdateAsync(task);
         return true;
     }
-    
+
     public async Task<bool> DeleteTaskAsync(int id)
     {
         if (!await _repository.ExistsAsync(id))
             return false;
-            
+
         await _repository.DeleteAsync(id);
         return true;
     }
-    
+
     public async Task<bool> ToggleTaskStatusAsync(int id)
     {
         var task = await _repository.GetByIdAsync(id);
         if (task == null) return false;
-        
+
         // Use business logic methods
         if (task.IsCompleted)
             task.MarkAsIncomplete();
         else
             task.MarkAsCompleted();
-            
+
         await _repository.UpdateAsync(task);
         return true;
     }

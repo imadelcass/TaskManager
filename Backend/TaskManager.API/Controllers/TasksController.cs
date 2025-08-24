@@ -21,10 +21,11 @@ public class TasksController : ControllerBase
 
     // GET: api/tasks
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<TaskResponseDto>>> GetAll()
+    [HttpGet]
+    public async Task<ActionResult<PagedResult<TaskResponseDto>>> GetAllAsync([FromQuery] int currentPage = 1, [FromQuery] int pageSize = 10)
     {
-        var tasks = await _taskService.GetAllTasksAsync();
-        return Ok(tasks);  // Returns 200 OK with data
+        var result = await _taskService.GetAllAsync(currentPage, pageSize);
+        return Ok(result);
     }
 
     // GET: api/tasks/5

@@ -25,10 +25,19 @@ builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 
-var app = builder.Build();
+// Add CORS service
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowVueApp",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:5173")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
 
-// ========== MIDDLEWARE PIPELINE (like Laravel's middleware) ==========
-// Order matters! Each request goes through these in order
+var app = builder.Build();
 
 // Development only middleware
 if (app.Environment.IsDevelopment())
@@ -36,9 +45,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();  // Enable Swagger JSON endpoint
     app.UseSwaggerUI();  // Enable Swagger UI at /swagger
 }
+// Use CORS policy
+app.UseCors("AllowVueApp");
 
 // Use HTTPS redirection
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 // Use authorization (if you add auth later)
 app.UseAuthorization();

@@ -6,7 +6,7 @@ namespace TaskManager.Application.Interfaces;
 // This handles business logic
 public interface ITaskService
 {
-    Task<IEnumerable<TaskResponseDto>> GetAllTasksAsync();
+    Task<PagedResult<TaskResponseDto>> GetAllAsync(int currentPage, int pageSize);
     Task<TaskResponseDto?> GetTaskByIdAsync(int id);
     Task<TaskResponseDto> CreateTaskAsync(CreateTaskDto createTaskDto);
     Task<bool> UpdateTaskAsync(int id, UpdateTaskDto updateTaskDto);
