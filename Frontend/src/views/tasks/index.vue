@@ -1,50 +1,74 @@
 <template>
   <VxeGrid
+    ref="tableRef"
     :columns="columns"
     :proxy-config="proxyConfig"
+    add-label="Add Task"
+    @add-item="onAddItem"
+    @update-item="onUpdateItem"
+    @delete-item="onDeleteItem"
   />
+  <add-update :item="item" @refresh="refresh()" />
 </template>
 
 <script lang="ts" setup>
-import VxeGrid from '@/components/VxeGrid.vue'
 import type { VxeGridProps } from 'vxe-table'
+import AddUpdate from './components/AddUpdate.vue'
 
-interface RowVO {
-  id: number
-  name: string
-  nickname: string
-  role: string
-  sex: string
-  age: number
-  address: string
-}
+const taskStore = useTaskStore()
+const item = ref<Task | null>(null)
+const tableRef = ref<any>(null)
 
-const proxyConfig: VxeGridProps<RowVO>['proxyConfig'] = {
+const proxyConfig: VxeGridProps<Task>['proxyConfig'] = {
   ajax: {
-    query: () =>
-      new Promise<RowVO[]>((resolve) => {
-        setTimeout(() => {
-          resolve([
-            {
-              id: 10001,
-              name: 'Test1',
-              nickname: 'T1',
-              role: 'Develop',
-              sex: 'Man',
-              age: 28,
-              address: 'Shenzhen',
-            },
-          ])
-        }, 300)
+    query: ({ page }) =>
+      new Promise((resolve) => {
+        taskStore.fetch(page).then((res) => {
+          resolve({
+            page: { total: res?.totalCount },
+            result: res?.items,
+          })
+        })
       }),
   },
 }
 
-const columns: VxeGridProps<RowVO>['columns'] = [
-  { type: 'seq', width: 70 },
-  { field: 'name', title: 'Name' },
-  { field: 'nickname', title: 'Nickname' },
-  { field: 'role', title: 'Role' },
-  { field: 'address', title: 'Address', showOverflow: true },
+const columns: VxeGridProps<Task>['columns'] = [
+  { field: 'title', title: 'Title' },
+  { field: 'description', title: 'Description' },
+  {
+    field: 'isCompleted',
+    title: 'Status',
+    width: 100,
+    formatter: ({ cellValue }) => (cellValue ? 'Completed' : 'Not Completed'),
+  },
+  {
+    field: 'actions',
+    title: 'actions',
+    width: 120,
+    slots: {
+      default: 'actions',
+    },
+  },
 ]
+
+const onAddItem = (row: any) => {
+  item.value = null
+  useDialog('task_dialog').open()
+}
+
+const onUpdateItem = (row: any) => {
+  item.value = row
+  useDialog('task_dialog').open()
+}
+
+const onDeleteItem = (row: any) => {
+  taskStore.delete(row.id).then(() => {
+    refresh()
+  })
+}
+
+const refresh = () => {
+  tableRef.value.refresh()
+}
 </script>

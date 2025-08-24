@@ -5,14 +5,16 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'home',
       redirect: { name: 'tasks' },
+      component: () => import('@/layouts/default.vue'),
+      children: [
+        {
+          path: '/tasks',
+          name: 'tasks',
+          component: () => import('@/views/tasks/index.vue'),
+        },
+      ],
     },
-    {
-      path: '/tasks',
-      name: 'tasks',
-      component: () => import('@/views/tasks/index.vue'),
-    }
   ],
 })
 
