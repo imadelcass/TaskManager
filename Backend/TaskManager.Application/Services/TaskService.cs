@@ -4,12 +4,10 @@ using TaskManager.Domain.Entities;
 
 namespace TaskManager.Application.Services;
 
-// Service Implementation (like Laravel Service classes)
 public class TaskService : ITaskService
 {
     private readonly ITaskRepository _repository;
 
-    // Constructor Injection (like Laravel's dependency injection)
     public TaskService(ITaskRepository repository)
     {
         _repository = repository;
@@ -33,7 +31,7 @@ public class TaskService : ITaskService
         {
             Items = taskDtos,
             TotalCount = totalCount,
-            Page = page,
+            Page = currentPage,
             PageSize = pageSize
         };
     }
@@ -57,7 +55,6 @@ public class TaskService : ITaskService
 
     public async Task<TaskResponseDto> CreateTaskAsync(CreateTaskDto createTaskDto)
     {
-        // Create domain entity from DTO
         var task = new TaskItem
         {
             Title = createTaskDto.Title,
@@ -82,11 +79,9 @@ public class TaskService : ITaskService
         var task = await _repository.GetByIdAsync(id);
         if (task == null) return false;
 
-        // Update the entity
         task.Title = updateTaskDto.Title;
         task.Description = updateTaskDto.Description;
 
-        // Handle status change using business methods
         if (updateTaskDto.IsCompleted && !task.IsCompleted)
         {
             task.MarkAsCompleted();
@@ -114,7 +109,6 @@ public class TaskService : ITaskService
         var task = await _repository.GetByIdAsync(id);
         if (task == null) return false;
 
-        // Use business logic methods
         if (task.IsCompleted)
             task.MarkAsIncomplete();
         else

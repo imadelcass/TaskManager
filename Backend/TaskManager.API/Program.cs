@@ -17,8 +17,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Register Services (Dependency Injection - like Laravel's app()->bind())
-// Scoped = New instance per request (like Laravel's request lifecycle)
+// Register Services
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 

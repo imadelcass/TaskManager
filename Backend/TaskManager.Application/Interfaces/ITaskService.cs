@@ -2,8 +2,6 @@ using TaskManager.Application.DTOs;
 
 namespace TaskManager.Application.Interfaces;
 
-// Service Interface (like Laravel Service classes)
-// This handles business logic
 public interface ITaskService
 {
     Task<PagedResult<TaskResponseDto>> GetAllAsync(int currentPage, int pageSize);
