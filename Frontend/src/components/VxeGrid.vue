@@ -1,4 +1,5 @@
 <template>
+  <div class="w-full h-full p-4 bg-white rounded-lg shadow">
   <vxe-grid ref="tableRef" v-bind="mergedOptions">
     <template #toolbar_buttons="{ row }">
       <div class="mb-3 flex space-x-2">
@@ -40,6 +41,7 @@
       </div>
     </template>
   </vxe-grid>
+  </div>
 </template>
 
 <script lang="ts" setup generic="T">
@@ -62,7 +64,6 @@ const mergedOptions = computed<VxeGridProps<T>>(() => ({
   columns: props.columns,
   proxyConfig: props.proxyConfig,
   border: true,
-  height: 500,
   stripe: true,
   resizable: true,
   showOverflow: true,
