@@ -14,24 +14,6 @@
               Tasks
             </router-link>
           </li>
-          <li>
-            <router-link
-              to="/products"
-              class="block px-6 py-2 hover:bg-gray-200 rounded"
-              active-class="bg-gray-200 font-semibold"
-            >
-              Products
-            </router-link>
-          </li>
-          <li>
-            <router-link
-              to="/users"
-              class="block px-6 py-2 hover:bg-gray-200 rounded"
-              active-class="bg-gray-200 font-semibold"
-            >
-              Users
-            </router-link>
-          </li>
         </ul>
       </nav>
     </aside>
