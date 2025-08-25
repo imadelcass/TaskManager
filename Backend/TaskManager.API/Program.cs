@@ -4,11 +4,18 @@ using TaskManager.Application.Interfaces;
 using TaskManager.Application.Services;
 using TaskManager.Infrastructure.Data;
 using TaskManager.Infrastructure.Repositories;
+using FluentValidation;
+using TaskManager.Application.Tasks.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add controllers
 builder.Services.AddControllers();
+
+// Add FluentValidation
+// builder.Services.AddValidatorsFromAssembly(Assembly.Load("TaskManager.Application"));
+builder.Services.AddValidatorsFromAssemblyContaining<CreateTaskCommandValidator>();
+// builder.Services.AddScoped<IValidator<>, CreateTaskCommandValidator>();
 
 // Add Swagger (for API documentation)
 builder.Services.AddEndpointsApiExplorer();
@@ -16,7 +23,7 @@ builder.Services.AddSwaggerGen();
 
 
 // Add MediatR
-builder.Services.AddMediatR(cfg => 
+builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(Assembly.Load("TaskManager.Application")));
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

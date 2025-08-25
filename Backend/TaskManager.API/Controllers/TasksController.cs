@@ -1,3 +1,4 @@
+using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.Application.DTOs;
@@ -6,20 +7,23 @@ using TaskManager.Application.Queries.Tasks;
 using TaskManager.Application.Tasks.Commands;
 
 namespace TaskManager.API.Controllers;
-
-// ApiController = REST API Controller (like Laravel's Controller)
-// Route attribute = URL pattern (like Laravel's Route::)
 [ApiController]
 [Route("api/[controller]")]
-public class TasksController : ControllerBase
+public class TasksController : BaseController
 {
     private readonly ITaskService _taskService;
     private readonly IMediator _mediator;
+    private readonly IValidator<CreateTaskCommand> _createTaskValidator;
+    private readonly IValidator<UpdateTaskDto> _updateTaskValidator;
 
-    public TasksController(ITaskService taskService, IMediator mediator)
+
+
+    public TasksController(ITaskService taskService, IMediator mediator, IValidator<CreateTaskCommand> createTaskValidator, IValidator<UpdateTaskDto> updateTaskValidator)
     {
         _taskService = taskService;
         _mediator = mediator;
+        _createTaskValidator = createTaskValidator;
+        _updateTaskValidator = updateTaskValidator;
     }
 
     // GET: api/tasks
@@ -44,10 +48,12 @@ public class TasksController : ControllerBase
 
     // POST: api/tasks
     [HttpPost]
-    public async Task<ActionResult<TaskResponseDto>> Create(CreateTaskCommand command)
+    public async Task<ActionResult<TaskResponseDto>> Create([FromBody] CreateTaskCommand command)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
+        var validationResult = await Validate(_createTaskValidator, command);
+        if (validationResult != null)
+            return validationResult;
+        
 
         var task = await _mediator.Send(command);
 
@@ -58,19 +64,21 @@ public class TasksController : ControllerBase
         );
     }
 
+
     // PUT: api/tasks/5
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, UpdateTaskDto updateTaskDto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
+        var validationResult = await Validate(_updateTaskValidator, updateTaskDto);
+        if (validationResult != null)
+            return validationResult;
 
         var success = await _taskService.UpdateTaskAsync(id, updateTaskDto);
 
         if (!success)
             return NotFound(new { message = "Task not found" });
 
-        return NoContent();  // 204 No Content (successful update)
+        return NoContent();
     }
 
     // DELETE: api/tasks/5
@@ -82,7 +90,7 @@ public class TasksController : ControllerBase
         if (!success)
             return NotFound(new { message = "Task not found" });
 
-        return NoContent();  // 204 No Content (successful delete)
+        return NoContent();
     }
 
     // PATCH: api/tasks/5/toggle-status
