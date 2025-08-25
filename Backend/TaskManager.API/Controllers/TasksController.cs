@@ -1,6 +1,9 @@
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.Application.DTOs;
 using TaskManager.Application.Interfaces;
+using TaskManager.Application.Queries.Tasks;
+using TaskManager.Application.Tasks.Commands;
 
 namespace TaskManager.API.Controllers;
 
@@ -11,20 +14,19 @@ namespace TaskManager.API.Controllers;
 public class TasksController : ControllerBase
 {
     private readonly ITaskService _taskService;
-    private readonly ILogger<TasksController> _logger;
+    private readonly IMediator _mediator;
 
-    public TasksController(ITaskService taskService, ILogger<TasksController> logger)
+    public TasksController(ITaskService taskService, IMediator mediator)
     {
         _taskService = taskService;
-        _logger = logger;
+        _mediator = mediator;
     }
 
     // GET: api/tasks
     [HttpGet]
-    [HttpGet]
     public async Task<ActionResult<PagedResult<TaskResponseDto>>> GetAllAsync([FromQuery] int currentPage = 1, [FromQuery] int pageSize = 10)
     {
-        var result = await _taskService.GetAllAsync(currentPage, pageSize);
+        var result = await _mediator.Send(new GetTasksQuery(currentPage, pageSize));
         return Ok(result);
     }
 
@@ -37,22 +39,18 @@ public class TasksController : ControllerBase
         if (task == null)
             return NotFound(new { message = "Task not found" });  // 404
 
-        _logger.LogInformation("Task found: " + task);
         return Ok(nameof(GetById));  // 200 OK
     }
 
     // POST: api/tasks
     [HttpPost]
-    public async Task<ActionResult<TaskResponseDto>> Create(CreateTaskDto createTaskDto)
+    public async Task<ActionResult<TaskResponseDto>> Create(CreateTaskCommand command)
     {
-        // ModelState = Validation (like Laravel's $request->validate())
         if (!ModelState.IsValid)
-            return BadRequest(ModelState);  // 400 Bad Request
+            return BadRequest(ModelState);
 
-        var task = await _taskService.CreateTaskAsync(createTaskDto);
+        var task = await _mediator.Send(command);
 
-        // CreatedAtAction = 201 Created with location header
-        // Like Laravel's response()->json($task, 201)
         return CreatedAtAction(
             nameof(GetById),
             new { id = task.Id },
